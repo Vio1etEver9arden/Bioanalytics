@@ -44,4 +44,11 @@ This is the tutorial I followed构建linux环境 : [Bilibili](https://www.bilibi
    ```
    其中，`sorted_input.bedgraph`是bdg文件名，`hg38.chrom.sizes` is the name of reference genome, `output.bw` is the bigwig name of output
 
+- ### 合并bigwig文件 Merge bigwig files
+  使用 `bigWigMerge` 合并
+  ```bash
+  bigWigMerge GSM2527635.bigwig GSM2527636.bigwig GSE96003.bedGraph
+  ```
+  这样子是先合并成bedgraph文件，然后再转换成bigwig文件
+
 
