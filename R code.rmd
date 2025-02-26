@@ -1,0 +1,22 @@
+## R code for the differential analysis
+### using limma package
+
+#### Load the required libraries
+```{r}
+library(limma)
+library(open.xlsx)
+library(ggplot2)
+library(dplyr)
+library(clusterProfiler)
+library(org.Mm.eg.db)
+library(AnnotationDbi)
+library(ggVolcano)
+```
+
+#### Load the data
+
+
+
+
+
+
