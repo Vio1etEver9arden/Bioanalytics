@@ -52,3 +52,7 @@ This is the tutorial I followed构建linux环境 : [Bilibili](https://www.bilibi
   这样子是先合并成bedgraph文件，然后再转换成bigwig文件
 
 
+
+## RNA-seq
+- ### 从GEO数据库下载数据 Download data from GEO database
+   
