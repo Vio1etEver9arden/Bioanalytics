@@ -13,7 +13,6 @@
    `fasterq-dump`可以直接下载fastq文件
     ```bash
     fasterq-dump SRR1234567 --split-files -e 10 -O ./fastq_output -p
-    ```
     
   - `SRR1234567`is the SRR number,
   - `--split-files` is to split paired-end reads,
