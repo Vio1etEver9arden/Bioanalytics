@@ -1,9 +1,7 @@
 # Bioinformatics 
 
 ### From Du
-
-__Update Time__ : 2025-04-01       
-> (It's still under construction)
+----
 
 __(Configure the environment构建环境)__   
 
