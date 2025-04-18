@@ -163,9 +163,3 @@
 - 切碎 chop / mince
 - 灌注 perfusion
 - 浆液 slurry
-
-## 五、分子生物学实验常用仪器物品 Molecular Biology Lab Essentials
-（此部分同样建议使用上文详细列表粘贴至此）
-
-## 六、实验行为动词 Lab Verbs Summary
-（可结合四、五部分提炼为操作型词汇列表供学习使用）
