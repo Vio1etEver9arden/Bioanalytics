@@ -10,13 +10,18 @@
    <br>
 
   2. 下载数据/download data
-   `fasterq-dump`可以直接下载fastq文件
-    ```bash
-    fasterq-dump SRR1234567 --split-files -e 10 -O ./fastq_output -p
+   ```bash
+   fasterq-dump SRR1234567 --split-files -e 10 -O ./fastq_output -p
+   ```
+ 其中/Among the parameters:
     
   - `SRR1234567`is the SRR number,
   - `--split-files` is to split paired-end reads,
   - `-e 10` is the number of threads (according to your computer),
   - `-O ./fastq_output` is the output directory.
   - `-p` is to show progress.  
+  
   fasterq-dump doesn't have `--gzip` option, so you need to compress the files manually. 不能使用`--gzip`选项，所以需要手动压缩文件。建议使用`pigz`
+  ```bash
+  pigz -p 10 *.fastq
+  ```
