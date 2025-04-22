@@ -1,16 +1,16 @@
-## Bioanalytics study  
+## Bioanalytics study 
 
-> (It's still under construction)
+> I love codes 😎👌😭 (It's still under construction)
 
-Yilin Du  
+🤓Yilin Du  
 
-Medical student  
+⚕️Medical student  
 
-PhD candidate  
+🧑‍🎓PhD student 
 
-Tohoku University  
+🏫Tohoku University  
 
 
-Email: du.yilin.q2@dc.tohoku.ac.jp
+📧Email: du.yilin.q2@dc.tohoku.ac.jp
 
-Update: 2025-04-18
+📅Update: 2025-04-22

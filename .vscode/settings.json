@@ -1,8 +1,12 @@
 {
     "cSpell.words": [
         "dplyr",
+        "fasterq",
+        "fastq",
         "ggplot",
         "limma",
+        "pigz",
+        "rnaseq",
         "tidyverse"
     ]
 }
