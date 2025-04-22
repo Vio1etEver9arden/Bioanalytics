@@ -66,4 +66,4 @@
 ## FastQC - Quality control/质量控制
 > FastQC is a tool using to check the quality of sequencing data before and after trimming.
 > FastQC用于检查测序数据质量。
-> 
+>  
