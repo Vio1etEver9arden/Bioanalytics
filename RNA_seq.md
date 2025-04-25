@@ -111,7 +111,7 @@
 
 > `trim_galore --help` to check help and options.
 
-> See [Offical user guide](https://github.com/FelixKrueger/TrimGalore/blob/master/Docs/Trim_Galore_User_Guide.md) for more details.
+> See [Official user guide](https://github.com/FelixKrueger/TrimGalore/blob/master/Docs/Trim_Galore_User_Guide.md) for more details.
 
 1. 安装/Install
    ```bash
@@ -132,8 +132,21 @@
       - `--fastqc` is to run FastQC once trimming finished,
       - `--o` is the output directory for trimmed files,
       - `-cores` specifies the number of threads to use. 4 threads are recommended in the official documents. 
-       
-     __ATTENTION ⚠️:__ Many parameters are defaulted and you can customize in options. 
+
+   - Single end reads
+    ```bash
+    trim_galore \
+    --fastqc \
+    --o trimmed \
+    --cores 4 \
+    ./fastq_output/SRR28810090.fastq.gz
+    ```
+
+     __ATTENTION ⚠️:__ 
+     - Many parameters are defaulted and you can customize in options. Please see __[Official user guide](https://github.com/FelixKrueger/TrimGalore/blob/master/Docs/Trim_Galore_User_Guide.md) CAREFULLY!__
+     - Adapters are automatically detected, default is `--illumina`. 
+     - `-q/--quality <INT>` default is 20
+     - `--length <INT>` default is 20. 
 3. 批量处理/Batch processing
    ```bash
    for r1 in ./fastq_output/*_1.fastq.gz; do
@@ -148,5 +161,167 @@
     done
     ```
 
+## Mapping/比对
+> There are still many tools for mapping, such as `STAR`, `HISAT2`, `Bowtie2`, etc. We will use `HISAT2` for mapping.
 
+> `hisat2 -h` to check help and options.
+
+>[Website](https://daehwankimlab.github.io/hisat2/)
+
+1. 安装/Install
+   ```bash
+   conda install -c bioconda hisat2
+   ```
+2. 构建索引/Build index
+   Download reference genome. `HISAT2` provides pre-built indexes for various species. Here we take *mus musculus* `GRCm38` as example. You can directly download them from the [HISAT2 website](https://daehwankimlab.github.io/hisat2/download/). Or use the following command: 
    
+   ```bash
+   wget -c https://cloud.biohpc.swmed.edu/index.php/s/grcm38/download
+   ``` 
+
+3. 解压索引/Unzip index
+   Unzip the genome index file in a directory called `index`: 
+   ```bash
+   tar -xvzf grcm38.tar.gz
+   ```
+
+4. 使用/Usage
+   - 双端比对/Paired-end mapping
+   ```bash
+    mkdir -p ./mapping
+
+    hisat2 \
+     -x grcm38/genome \
+     -p 16 \
+     -1 ./trimmed/SRR28810090_1_val_1.fq.gz \
+     -2 ./trimmed/SRR28810090_2_val_2.fq.gz \
+     -S ./mapping/SRR28810090.sam
+   ```
+   - 单端比对/Single-end mapping
+   ```bash
+    mkdir -p ./mapping
+
+    hisat2 \
+     -x grcm38/genome \
+     -p 16 \
+     -U ./trimmed/SRR28810090_val_1.fq.gz \
+     -S ./mapping/SRR28810090.sam
+   ```
+    其中/Among the parameters:
+    - `-x grcm38/genome` is the index file,
+    - `-p 16` is the number of threads (according to your computer),
+    - `-1` is the first read file,
+    - `-2` is the second read file,
+    - `-U` is the single read file,
+    - `-S` is the output file name.
+5. 批量处理/Batch processing
+   ```bash
+   mkdir -p ./mapping
+
+   for r1 in ./trimmed/*_1_val_1.fq.gz; do
+    base=$(basename "$r1" _1_val_1.fq.gz)
+    r2="./trimmed/${base}_2_val_2.fq.gz"
+
+    hisat2 \
+     -x grcm38/genome \
+     -p 16 \
+     -1 "$r1" \
+     -2 "$r2" \
+     -S "./mapping/${base}.sam"
+   done
+   ```
+
+## Samtools
+> `Samtools` is used to process the `sam` and `bam` files to convert, sort, index, and filter the files.
+
+> `samtools --help` to check help and options.
+
+> See [Github](https://github.com/samtools/samtools) for more details.
+1. 安装/Install
+   A little complex.
+   ```bash
+    # Download from Github
+    https://github.com/samtools/samtools/releases
+
+    # Unzip
+    tar -jxvf samtools-1.21.tar.bz2
+    cd samtools-1.21
+
+    # Install
+    ./configure 
+    make
+    sudo make install
+
+    # Check
+    samtools --version
+    which samtools
+    ```
+
+2. 使用/Usage
+   ```bash
+    # Convert sam to bam
+    samtools view -bS ./mapping/SRR28810090.sam > ./mapping/SRR28810090.bam
+    # Sort bam
+    samtools sort -o ./mapping/SRR28810090.sorted.bam ./mapping/SRR28810090.bam
+    # Index bam
+    samtools index ./mapping/SRR28810090.sorted.bam
+    ```
+    其中/Among the parameters:
+    - `-bS` means input is `sam` and output is `bam`,
+    - `-o` is the output file name
+
+3. 批量处理/Batch processing
+   Sam file is too large, so we pipe `HISAT2` output directly into samtools sort to generate a sorted `.bam` file without saving the intermediate `.sam`: 
+   ```bash
+    mkdir -p ./sorted
+    for r1 in ./trimmed/*_1_val_1.fq.gz; do
+    base=$(basename "$r1" _1_val_1.fq.gz)
+    r2="./trimmed/${base}_2_val_2.fq.gz"
+
+    hisat2 \
+     -x grcm38/genome \
+     -p 16 \
+     -1 "$r1" \
+     -2 "$r2"  \
+     | samtools view -bS \
+       | samtools sort \
+         -@ 16 \
+         -o "./sorted/${base}.sorted.bam"
+   done
+   ```
+    其中/Among the parameters:
+    - `-@ 16` is the number of threads (according to your computer),
+    - `-o` is the output file name.
+  
+
+## featureCounts
+> `featureCounts` is a tool for counting reads mapped to genomic features. It is part of the `Subread` package.
+
+> `featureCounts -h` to check help and options.
+ 
+> See [Official page](https://subread.sourceforge.net/featureCounts.html) and [Guide book](https://subread.sourceforge.net/SubreadUsersGuide.pdf) for more details.
+>
+1. 安装/Install
+   ```bash
+   conda install -c bioconda subread
+   ```
+2. 使用/Usage
+   - First, you need to download the annotation file. You can use the `gtf` file from `Ensembl` or `Gencode`. Here we take `Mus musculus GRCm38.102.gtf` as an example.
+  
+   ```bash
+   mkdir -p counts
+
+   featureCounts -a ~/Documents/GTF/Mus_musculus.GRCm38.102.gtf \
+    -T 16 \
+    -o ./counts/counts.txt \
+    -p \
+    ./sorted/*.sorted.bam
+    ```
+    其中/Among the parameters:
+    - `-a` is the annotation file,
+    - `-T` is the number of threads (according to your computer),
+    - `-o` is the output file name,
+    - `-p` is for paired-end reads.
+    - `./sorted/*.sorted.bam` is the input bam files.
+  
+  
