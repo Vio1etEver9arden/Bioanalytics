@@ -149,6 +149,7 @@
      - `--length <INT>` default is 20. 
 3. 批量处理/Batch processing
    ```bash
+   #parid end reads
    for r1 in ./fastq_output/*_1.fastq.gz; do
     base=$(basename "$r1" _1.fastq.gz)
     r2="./fastq_output/${base}_2.fastq.gz"
@@ -158,6 +159,15 @@
      --fastqc \
      --cores 4 \
      "$r1" "$r2"
+    done
+
+   #single end reads
+   for r1 in ./fastq_output/*.fastq.gz; do
+    trim_galore \
+     --o trimmed \
+     --fastqc \
+     --cores 4 \
+     "$r1"
     done
     ```
 
@@ -287,6 +297,23 @@
        | samtools sort \
          -@ 16 \
          -o "./sorted/${base}.sorted.bam"
+   done
+
+   # single end
+    mkdir -p ./sorted
+
+    for r1 in ./trimmed/*.fq.gz; do
+    base=$(basename "$r1" .fq.gz)
+
+    hisat2 \
+    -x grcm38/genome \
+    -p 16 \
+    -U "$r1" \
+    | samtools view -bS \
+    | samtools sort \
+     -@ 16 \
+     -o "./sorted/${base}.sorted.bam"
+
    done
    ```
     其中/Among the parameters:
