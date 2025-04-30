@@ -306,7 +306,7 @@
     base=$(basename "$r1" .fq.gz)
 
     hisat2 \
-    -x grcm38/genome \
+    -x grcm39/genome \
     -p 16 \
     -U "$r1" \
     | samtools view -bS \
@@ -338,17 +338,39 @@
    ```bash
    mkdir -p counts
 
-   featureCounts -a ~/Documents/GTF/Mus_musculus.GRCm38.102.gtf \
-    -T 16 \
-    -o ./counts/counts.txt \
-    -p \
-    ./sorted/*.sorted.bam
+   # paired end
+    featureCounts -a ~/Documents/GTF/Mus_musculus.GRCm38.102.gtf \
+     -T 16 \
+     -o ./counts/counts.txt \
+     -t exon \
+     -g gene_id \
+     -p \
+     ./sorted/*.sorted.bam
+
+    # single end
+    featureCounts -a ~/Documents/GTF/Mus_musculus.GRCm39.113.gtf \
+     -T 16 \
+     -o ./counts/counts.txt \
+     -t exon \
+     -g gene_id \
+      ./sorted/*.sorted.bam 
     ```
     其中/Among the parameters:
     - `-a` is the annotation file,
     - `-T` is the number of threads (according to your computer),
     - `-o` is the output file name,
     - `-p` is for paired-end reads.
+    - `-t` is the feature type, default is `exon`,
+    - `-g` is the attribute type, default is `gene_id`,
     - `./sorted/*.sorted.bam` is the input bam files.
   
-  
+  ## Addition: 合并样本/Merge samples
+
+  ```bash
+ mkdir -p ./merged
+
+ for i in {1..8}; do
+   cat ./Raw/Lib5-${i}_S${i}_L00*_R1_001.fastq.gz > ./merged/Lib5-${i}_S${i}.fastq.gz
+  done
+   ```
+ 
