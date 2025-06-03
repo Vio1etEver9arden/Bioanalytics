@@ -11,5 +11,3 @@
 🏫 Tohoku University
 
 📧 Email: du.yilin.q2@dc.tohoku.ac.jp
-
-📅 Update: 2025-06-03
