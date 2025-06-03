@@ -1,6 +1,6 @@
 ## Bioanalytics study 
 
-> I love codes 😎👌😭 (It's still under construction)
+> I love research 😎👌🕶️😭 (It's still under construction)
 
 🤓Yilin Du   
 
@@ -13,4 +13,4 @@
 
 📧Email: du.yilin.q2@dc.tohoku.ac.jp
 
-📅Update: 2025-04-22
+📅Update: 2025-06-03
