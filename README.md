@@ -1,16 +1,15 @@
-## Bioanalytics study 
+## About Me
 
 > I love research 😎👌🕶️😭 (It's still under construction)
 
-🤓Yilin Du   
+🤓 Yilin Du
 
-⚕️Medical student  
+🏥 Rehabilitation doctor
 
-🧑‍🎓PhD student 
+🧑‍🎓 PhD student
 
-🏫Tohoku University  
+🏫 Tohoku University
 
+📧 Email: du.yilin.q2@dc.tohoku.ac.jp
 
-📧Email: du.yilin.q2@dc.tohoku.ac.jp
-
-📅Update: 2025-06-03
+📅 Update: 2025-06-03
