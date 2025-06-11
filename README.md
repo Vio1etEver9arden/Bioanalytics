@@ -1,12 +1,14 @@
 ## About Me
 
-> I love research 😎👌🕶️😭 (It's still under construction)
+> I love research 😎👌🕶️ ➡️ 😭 (It's still under construction)
 
 🤓 Yilin Du
 
 🏥 Rehabilitation doctor
 
-🧑‍🎓 PhD student
+🧑‍🎓 Ph.D. student
+
+~~🤖 ChatGPT operator~~ 
 
 🏫 Tohoku University
 
