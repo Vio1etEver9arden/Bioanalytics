@@ -1,7 +1,14 @@
 # RNA-seq  
 
 -------
-## 使用sra-tools下载数据 Download data using sra-tools 
+## Preface
+RNA-seq upstream analysis converts raw sequencing data, usually FASTQ files from Illumina paired-end sequencing platforms, into gene-level count matrices that can be used for downstream differential expression analysis. A typical workflow includes raw data quality control, adapter and low-quality sequence trimming, alignment to a reference genome, BAM file sorting, and read counting based on gene annotation files.
+
+This pipeline is designed for a Linux or macOS command-line environment. 
+
+200 GB free disk space is recommended. Larger datasets may require more CPU threads, 32 GB or more memory, and sufficient storage.
+
+## 使用sra-tools下载GEO数据 Download GEO data using sra-tools 
 > 使用`sra-tools`工具。`sra-tools`中包含了`prefetch`和`fasterq-dump`。官方推荐的做法是先通过`prefetch`下载.sra数据，然后使用`fasterq-dump`转换成fastq格式。经我个人测试这是速度最快的。当然也可以直接使用`fasterq-dump`下载fastq格式的数据。
 > We use `sra-tools` to download data. `sra-tools` includes `prefetch` and `fasterq-dump`. The official recommendation is to first download the `sra` format data using `prefetch`, and then convert it to `fastq` format using `fasterq-dump`. In my personal test, this is the fastest. Of course, you can also use `fasterq-dump` to download fastq format data directly.
 1. 安装sra-tools/Install sra-tools
@@ -42,12 +49,15 @@
 4. 压缩fastq文件/Compress fastq files
    - `fasterq-dump` doesn't have `--gzip` option, so you need to compress the files manually. `pigz` is recommended. 不能使用`--gzip`选项，所以需要手动压缩文件。建议使用`pigz`
     ```bash
+    conda install -c bioconda pigz  # Install pigz
+
     pigz -p 16 *.fastq
     ```
 5. 批量处理
 
    ```bash
    mkdir -p SRA fastq_output
+
    for acc in $(cat SRR_Acc_List.txt);
     do
       prefetch $acc \
@@ -63,7 +73,7 @@
 
    pigz -p 10 ./fastq_output/*.fastq
    ```
-## FastQC - Quality control/质量控制
+## ⭐FastQC - Quality control/质量控制
 > FastQC is a tool used to check the quality of sequencing data before and after trimming.
 > FastQC用于检查测序数据质量。
 
@@ -105,13 +115,16 @@
 
 ## Trimming/修剪
 > Depending on the FastQC results, you may need to trim the reads.
-> There are many tools for trimming, such as `trimmomatic`, `cutadapt`, `fastp`, etc. We will use `Trim Galore!` here.
+> 
+> There are many tools for trimming, such as `trimmomatic`, `cutadapt`, `fastp`, etc. You'd better to try all of them and choose the best one for your. 
+> 
+> We will use `Trim Galore!` here.
 
 > `Trim Galore!` is a wrapper around __`cutadapt`__ and __`fastqc`__, so you have to install them first.
 
 > `trim_galore --help` to check help and options.
 
-> See [Official user guide](https://github.com/FelixKrueger/TrimGalore/blob/master/Docs/Trim_Galore_User_Guide.md) for more details.
+> ⚠️See [Official website](https://www.trimgalore.com/) for more details. __HIGHLY RECOMMENDED!__
 
 1. 安装/Install
    ```bash
@@ -143,8 +156,9 @@
     ```
 
      __ATTENTION ⚠️:__ 
-     - Many parameters are defaulted and you can customize in options. Please see __[Official user guide](https://github.com/FelixKrueger/TrimGalore/blob/master/Docs/Trim_Galore_User_Guide.md) CAREFULLY!__
-     - Adapters are automatically detected, default is `--illumina`. 
+     - Trimming is a double-edged sword. It can improve the quality of reads, but it can also lead to loss of data and bias. So you should __check the FastQC results__ before and after trimming to see if the trimming is necessary and effective.
+     - Many parameters are defaulted and you can customize in options. Please see __[Official website](https://www.trimgalore.com/) CAREFULLY!__
+     - Adapters are automatically detected, default is `--illumina`. Although it can automatically detect adapters, you'd better to specify the adapter type in advance. 
      - `-q/--quality <INT>` default is 20
      - `--length <INT>` default is 20. 
 3. 批量处理/Batch processing
@@ -172,7 +186,7 @@
     ```
 
 ## Mapping/比对
-> There are still many tools for mapping, such as `STAR`, `HISAT2`, `Bowtie2`, etc. We will use `HISAT2` for mapping.
+> There are still many tools for mapping, such as `STAR`, `HISAT2`, `Bowtie2`, etc. We will use `HISAT2` for mapping here.
 
 > `hisat2 -h` to check help and options.
 
@@ -183,42 +197,42 @@
    conda install -c bioconda hisat2
    ```
 2. 构建索引/Build index
-   Download reference genome. `HISAT2` provides pre-built indexes for various species. Here we take *mus musculus* `GRCm38` as example. You can directly download them from the [HISAT2 website](https://daehwankimlab.github.io/hisat2/download/). Or use the following command: 
+   Download reference genome. `HISAT2` provides pre-built indexes for various species. Here we take __mouse__ *mus musculus* `GRCm39` as example. You can directly download them from the [HISAT2 website](https://daehwankimlab.github.io/hisat2/download/). Or use the following command: 
    
    ```bash
-   wget -c https://cloud.biohpc.swmed.edu/index.php/s/grcm38/download
+   wget -c https://cloud.biohpc.swmed.edu/index.php/s/grcm39/download
    ``` 
 
 3. 解压索引/Unzip index
    Unzip the genome index file in a directory called `index`: 
    ```bash
-   tar -xvzf grcm38.tar.gz
+   tar -xvzf grcm39.tar.gz
    ```
 
 4. 使用/Usage
-   - 双端比对/Paired-end mapping
+   - Paired-end mapping
    ```bash
     mkdir -p ./mapping
 
     hisat2 \
-     -x grcm38/genome \
+     -x grcm39/genome \
      -p 16 \
      -1 ./trimmed/SRR28810090_1_val_1.fq.gz \
      -2 ./trimmed/SRR28810090_2_val_2.fq.gz \
      -S ./mapping/SRR28810090.sam
    ```
-   - 单端比对/Single-end mapping
+   - Single-end mapping
    ```bash
     mkdir -p ./mapping
 
     hisat2 \
-     -x grcm38/genome \
+     -x grcm39/genome \
      -p 16 \
      -U ./trimmed/SRR28810090_val_1.fq.gz \
      -S ./mapping/SRR28810090.sam
    ```
     其中/Among the parameters:
-    - `-x grcm38/genome` is the index file,
+    - `-x grcm39/genome` is the index file,
     - `-p 16` is the number of threads (according to your computer),
     - `-1` is the first read file,
     - `-2` is the second read file,
@@ -233,7 +247,7 @@
     r2="./trimmed/${base}_2_val_2.fq.gz"
 
     hisat2 \
-     -x grcm38/genome \
+     -x grcm39/genome \
      -p 16 \
      -1 "$r1" \
      -2 "$r2" \
@@ -242,7 +256,7 @@
    ```
 
 ## Samtools
-> `Samtools` is used to process the `sam` and `bam` files to convert, sort, index, and filter the files.
+> `Samtools` is used to process the `.sam` and `.bam` files to convert, sort, index, and filter the files.
 
 > `samtools --help` to check help and options.
 
@@ -251,10 +265,10 @@
    A little complex.
    ```bash
     # Download from Github
-    https://github.com/samtools/samtools/releases
+    https://github.com/samtools/samtools/releases  # Download the latest version.
 
     # Unzip
-    tar -jxvf samtools-1.21.tar.bz2
+    tar -jxvf samtools-1.21.tar.bz2 # 
     cd samtools-1.21
 
     # Install
@@ -271,8 +285,10 @@
    ```bash
     # Convert sam to bam
     samtools view -bS ./mapping/SRR28810090.sam > ./mapping/SRR28810090.bam
+
     # Sort bam
     samtools sort -o ./mapping/SRR28810090.sorted.bam ./mapping/SRR28810090.bam
+
     # Index bam
     samtools index ./mapping/SRR28810090.sorted.bam
     ```
@@ -281,15 +297,16 @@
     - `-o` is the output file name
 
 3. 批量处理/Batch processing
-   Sam file is too large, so we pipe `HISAT2` output directly into samtools sort to generate a sorted `.bam` file without saving the intermediate `.sam`: 
+   `.sam` file is too large, so we __pipe__ `HISAT2` output directly into samtools sort to generate a sorted `.bam` file without saving the intermediate `.sam`: 
    ```bash
     mkdir -p ./sorted
+
     for r1 in ./trimmed/*_1_val_1.fq.gz; do
     base=$(basename "$r1" _1_val_1.fq.gz)
     r2="./trimmed/${base}_2_val_2.fq.gz"
 
     hisat2 \
-     -x grcm38/genome \
+     -x grcm39/genome \
      -p 16 \
      -1 "$r1" \
      -2 "$r2"  \
@@ -333,7 +350,7 @@
    conda install -c bioconda subread
    ```
 2. 使用/Usage
-   - First, you need to download the annotation file. You can use the `gtf` file from `Ensembl` or `Gencode`. Here we take `Mus musculus GRCm38.102.gtf` as an example.
+   - First, you need to download the annotation file. You can use the `gtf` file from `Ensembl` or `Gencode`. Here we take `Mus musculus GRCm39.113.gtf` as an example.
   
    ```bash
    mkdir -p counts
@@ -362,9 +379,10 @@
     - `-p` is for paired-end reads.
     - `-t` is the feature type, default is `exon`,
     - `-g` is the attribute type, default is `gene_id`,
-    - `./sorted/*.sorted.bam` is the input bam files.
+    - `./sorted/*.sorted.bam` is the input bam files.  
   
   ## Addition: 合并样本/Merge samples
+  > If you have multiple fastq files for the same sample, you can merge them into one file before trimming and mapping.
 
   ```bash
  mkdir -p ./merged
