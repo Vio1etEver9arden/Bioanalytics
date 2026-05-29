@@ -1,4 +1,4 @@
-# RNA-seq  
+# RNA-seq  upstream analysis 
 
 -------
 ## Preface
@@ -9,7 +9,10 @@ This pipeline is designed for a Linux or macOS command-line environment.
 200 GB free disk space is recommended. Larger datasets may require more CPU threads, 32 GB or more memory, and sufficient storage.
 
 ## 使用sra-tools下载GEO数据 Download GEO data using sra-tools 
+> If you are using your own data, just skip this section.
+
 > 使用`sra-tools`工具。`sra-tools`中包含了`prefetch`和`fasterq-dump`。官方推荐的做法是先通过`prefetch`下载.sra数据，然后使用`fasterq-dump`转换成fastq格式。经我个人测试这是速度最快的。当然也可以直接使用`fasterq-dump`下载fastq格式的数据。
+> 
 > We use `sra-tools` to download data. `sra-tools` includes `prefetch` and `fasterq-dump`. The official recommendation is to first download the `sra` format data using `prefetch`, and then convert it to `fastq` format using `fasterq-dump`. In my personal test, this is the fastest. Of course, you can also use `fasterq-dump` to download fastq format data directly.
 1. 安装sra-tools/Install sra-tools
    Follow the [Documents](https://github.com/ncbi/sra-tools)
